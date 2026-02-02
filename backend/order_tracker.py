@@ -16,6 +16,7 @@ class OrderTracker:
                     f"Storage object must implement a callable '{method}' method."
                 )
         self.storage = storage
+        self.valid_statuses = {"pending", "processing", "shipped"}
 
     def add_order(
         self,
@@ -27,6 +28,9 @@ class OrderTracker:
     ):
         if self.storage.get_order(order_id):
             raise ValueError(f"Order with ID '{order_id}' already exists.")
+
+        if status not in self.valid_statuses:
+            raise ValueError(f"Status '{status}' is not a valid status.")
 
         order = {
             "order_id": order_id,
@@ -44,6 +48,9 @@ class OrderTracker:
         order = self.storage.get_order(order_id)
         if not order:
             raise ValueError(f"Order with ID '{order_id}' does not exist.")
+        if new_status not in self.valid_statuses:
+            raise ValueError(f"Status '{new_status}' is not a valid status.")
+
         order["status"] = new_status
         self.storage.save_order(order_id, order)
 
@@ -52,8 +59,4 @@ class OrderTracker:
 
     def list_orders_by_status(self, status: str):
         all_orders = self.storage.get_all_orders()
-        return [
-            order
-            for order in all_orders.values()
-            if order.get("status") == status
-        ]
+        return [order for order in all_orders.values() if order.get("status") == status]
