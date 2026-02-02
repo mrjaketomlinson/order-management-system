@@ -278,3 +278,31 @@ def test_list_orders_by_status_invalid_status(order_tracker, mock_storage):
     # Should return an empty list when filtering by an invalid status
     assert len(orders) == 0
     mock_storage.get_all_orders.assert_called_once()
+
+
+def test_delete_order(order_tracker, mock_storage):
+    """Tests deleting an existing order."""
+    # Configure the mock to simulate that the order exists
+    mock_storage.get_order.return_value = {
+        "order_id": "ORD004",
+        "item_name": "Monitor",
+        "quantity": 1,
+        "customer_id": "CUST004",
+        "status": "processing",
+    }
+
+    # Call delete_order to remove the order
+    order_tracker.delete_order("ORD004")
+
+    # Verify that delete_order was called on the storage with the correct ID
+    mock_storage.delete_order.assert_called_once_with("ORD004")
+
+
+def test_delete_order_not_found(order_tracker, mock_storage):
+    """Tests deleting a non-existing order raises ValueError."""
+    # Mock returns None by default (order not found)
+    # Attempting to delete a non-existent order should raise ValueError
+    with pytest.raises(
+        ValueError, match="Order with ID 'ORD_NOT_EXIST' does not exist."
+    ):
+        order_tracker.delete_order("ORD_NOT_EXIST")

@@ -141,5 +141,14 @@ def list_orders_api():
         return jsonify(list(orders.values())), 200
 
 
+@app.route("/api/orders/<string:order_id>", methods=["DELETE"])
+def delete_order_api(order_id):
+    try:
+        order_tracker.delete_order(order_id)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    return "", 204
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)

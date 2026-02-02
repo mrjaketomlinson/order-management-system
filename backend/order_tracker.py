@@ -110,3 +110,17 @@ class OrderTracker:
         """
         all_orders = self.storage.get_all_orders()
         return [order for order in all_orders.values() if order.get("status") == status]
+
+    def delete_order(self, order_id: str):
+        """Delete an order by its ID.
+        
+        Args:
+            order_id: The unique identifier of the order to delete.
+            
+        Raises:
+            ValueError: If order doesn't exist.
+        """
+        order = self.storage.get_order(order_id)
+        if not order:
+            raise ValueError(f"Order with ID '{order_id}' does not exist.")
+        self.storage.delete_order(order_id)
