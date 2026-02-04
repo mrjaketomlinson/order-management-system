@@ -1,9 +1,11 @@
+"""Flask decorators for request validation."""
+
 from functools import wraps
 from flask import request, abort
 
 
 def json_required(f):
-    """Decorator to ensure that the request contains JSON data, returns 415 error if not."""
+    """Ensure that the request contains JSON data, return 415 error if not."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):

@@ -1,3 +1,5 @@
+"""Flask application for order management system."""
+
 from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.exceptions import BadRequest, NotFound, Conflict
 from backend.order_tracker import OrderTracker
@@ -165,6 +167,15 @@ def list_orders_api():
 
 @app.route("/api/orders/<string:order_id>", methods=["DELETE"])
 def delete_order_api(order_id):
+    """Delete an order by its ID.
+
+    Args:
+        order_id: The unique identifier of the order to update.
+
+    Returns:
+        Empty response with status 204 on success.
+        JSON: Error message with status 404 if order doesn't exist.
+    """
     try:
         order_tracker.delete_order(order_id)
     except ValueError as e:

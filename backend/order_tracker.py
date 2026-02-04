@@ -1,11 +1,14 @@
-# This module contains the OrderTracker class, which encapsulates the core
-# business logic for managing orders.
+"""Core business logic for managing orders.
+
+This module contains the OrderTracker class, which encapsulates the core
+business logic for managing orders.
+"""
 
 
 class OrderTracker:
-    """
-    Manages customer orders, providing functionalities to add, update,
-    and retrieve order information.
+    """Manages customer orders.
+
+    Provides functionalities to add, update, and retrieve order information.
     """
 
     def __init__(self, storage):
