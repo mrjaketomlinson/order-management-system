@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Order Management System](#order-management-system)
+  - [Features](#features)
+  - [Repository Structure](#repository-structure)
+  - [Architecture](#architecture)
+  - [Installation](#installation)
+  - [Running the Application](#running-the-application)
+  - [Running Tests](#running-tests)
+  - [API Overview](#api-overview)
+    - [Base URL](#base-url)
+    - [Endpoints](#endpoints)
+    - [Sample curl Commands](#sample-curl-commands)
+  - [Error Responses](#error-responses)
+  - [Project Reflection](#project-reflection)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Order Management System
 
 A Flask-based REST API for managing customer orders with a simple web frontend. The system allows you to create, read, update, and delete orders with status tracking (pending, processing, shipped).

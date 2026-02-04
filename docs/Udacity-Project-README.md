@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Udatracker with Test-Driven Development (TDD)](#udatracker-with-test-driven-development-tdd)
+  - [Part 1: Environment Setup](#part-1-environment-setup)
+  - [Part 2: Unit Testing The `OrderTracker` (The TDD Cycle)](#part-2-unit-testing-the-ordertracker-the-tdd-cycle)
+    - [Cycle 1: Adding a Basic Order](#cycle-1-adding-a-basic-order)
+    - [Cycle 2: Preventing Duplicate Orders](#cycle-2-preventing-duplicate-orders)
+    - [Cycle 3 and Beyond](#cycle-3-and-beyond)
+  - [Part 3: Building The API](#part-3-building-the-api)
+  - [Part 4: Run the Full Application](#part-4-run-the-full-application)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 For more information on this project, visit the course on [Udacity](https://www.udacity.com/course/test-driven-development--cd14599). Below are the instructions for the project.
 
 # Udatracker with Test-Driven Development (TDD)
@@ -47,7 +61,7 @@ We will build the `OrderTracker` class one test at a time. Open both `backend/or
     def test_add_order_successfully(order_tracker, mock_storage):
         """Tests adding a new order with default 'pending' status."""
         order_tracker.add_order("ORD001", "Laptop", 1, "CUST001")
-        
+
         # We expect save_order to be called once
         mock_storage.save_order.assert_called_once()
     ```
