@@ -182,9 +182,9 @@ def test_update_order_status_status_not_found(order_tracker, mock_storage):
         "status": "pending",
     }
 
-    # Attempting to set an invalid status (not in allowed list) should raise ValueError
+    # Attempting to set an invalid status (not in allowed list) should raise AssertionError
     # 'delivered' is not a valid status in this system
-    with pytest.raises(ValueError, match="Status 'delivered' is not a valid status."):
+    with pytest.raises(ValueError, match="'delivered' is not a valid OrderStatus"):
         order_tracker.update_order_status("ORD003", "delivered")
 
 

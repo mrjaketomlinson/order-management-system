@@ -4,6 +4,8 @@ This module contains the OrderTracker class, which encapsulates the core
 business logic for managing orders.
 """
 
+from backend.models import Order, OrderStatus
+
 
 class OrderTracker:
     """Manages customer orders.
@@ -27,7 +29,6 @@ class OrderTracker:
                     f"Storage object must implement a callable '{method}' method."
                 )
         self.storage = storage
-        self.valid_statuses = {"pending", "processing", "shipped"}
 
     def add_order(
         self,
@@ -52,17 +53,17 @@ class OrderTracker:
         if self.storage.get_order(order_id):
             raise ValueError(f"Order with ID '{order_id}' already exists.")
 
-        if status not in self.valid_statuses:
-            raise ValueError(f"Status '{status}' is not a valid status.")
+        # Use Order dataclass for validation
+        order = Order(
+            order_id=order_id,
+            item_name=item_name,
+            quantity=quantity,
+            customer_id=customer_id,
+            status=OrderStatus(status),
+        )
 
-        order = {
-            "order_id": order_id,
-            "item_name": item_name,
-            "quantity": quantity,
-            "customer_id": customer_id,
-            "status": status,
-        }
-        self.storage.save_order(order_id, order)
+        order_dict = order.to_dict()
+        self.storage.save_order(order_id, order_dict)
 
     def get_order_by_id(self, order_id: str):
         """Retrieve an order by its ID.
@@ -88,8 +89,8 @@ class OrderTracker:
         order = self.storage.get_order(order_id)
         if not order:
             raise ValueError(f"Order with ID '{order_id}' does not exist.")
-        if new_status not in self.valid_statuses:
-            raise ValueError(f"Status '{new_status}' is not a valid status.")
+
+        OrderStatus(new_status)  # Validate status
 
         order["status"] = new_status
         self.storage.save_order(order_id, order)
@@ -126,4 +127,5 @@ class OrderTracker:
         order = self.storage.get_order(order_id)
         if not order:
             raise ValueError(f"Order with ID '{order_id}' does not exist.")
+
         self.storage.delete_order(order_id)
