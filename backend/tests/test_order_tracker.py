@@ -122,18 +122,20 @@ def test_get_order_by_id(order_tracker, mock_storage):
     mock_storage.get_order.assert_called_once_with("ORD002")
 
 
-def test_get_order_by_id_not_found(order_tracker, mock_storage):
+@pytest.mark.parametrize("order_id", ["", "   ", None])
+def test_get_order_by_id_not_found(order_id, order_tracker, mock_storage):
     """Tests retrieving an order by its ID when the order does not exist."""
     # The mock's default return value is None (configured in fixture)
-    order = order_tracker.get_order_by_id("ORD999")
+    order = order_tracker.get_order_by_id(order_id)
 
     # Should return None when order doesn't exist
     assert order is None
     # Verify the storage was queried with the correct ID
-    mock_storage.get_order.assert_called_once_with("ORD999")
+    mock_storage.get_order.assert_called_once_with(order_id)
 
 
-def test_update_order_status(order_tracker, mock_storage):
+@pytest.mark.parametrize("status", ["pending", "processing", "shipped"])
+def test_update_order_status(status, order_tracker, mock_storage):
     """Tests updating the status of an existing order."""
     # Configure the mock to return an existing order with 'pending' status
     mock_storage.get_order.return_value = {
@@ -144,11 +146,11 @@ def test_update_order_status(order_tracker, mock_storage):
         "status": "pending",
     }
 
-    # Update the order status from 'pending' to 'shipped'
-    order_tracker.update_order_status("ORD003", "shipped")
+    # Update the order status from 'pending' to the parameterized status
+    order_tracker.update_order_status("ORD003", status)
 
     # Verify that save_order was called with the complete updated order
-    # The status should now be 'shipped' while other fields remain unchanged
+    # The status should now be the parameterized status while other fields remain unchanged
     mock_storage.save_order.assert_called_once_with(
         "ORD003",
         {
@@ -156,7 +158,7 @@ def test_update_order_status(order_tracker, mock_storage):
             "item_name": "Tablet",
             "quantity": 1,
             "customer_id": "CUST003",
-            "status": "shipped",
+            "status": status,
         },
     )
 
