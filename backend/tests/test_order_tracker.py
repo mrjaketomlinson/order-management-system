@@ -41,6 +41,40 @@ def test_add_order_successfully(order_tracker, mock_storage):
     # This confirms the order was saved to storage
     mock_storage.save_order.assert_called_once()
 
+    # Verify that the saved order data is correct
+    mock_storage.save_order.assert_called_once_with(
+        "ORD001",
+        {
+            "order_id": "ORD001",
+            "item_name": "Laptop",
+            "quantity": 1,
+            "customer_id": "CUST001",
+            "status": "pending",  # Default status
+        },
+    )
+
+
+def test_add_order_with_status_successfully(order_tracker, mock_storage):
+    """Tests adding a new order with 'processing' status."""
+    # Call add_order with valid parameters
+    order_tracker.add_order("ORD001", "Laptop", 1, "CUST001", status="processing")
+
+    # Verify that save_order was called exactly once to persist the new order
+    # This confirms the order was saved to storage
+    mock_storage.save_order.assert_called_once()
+
+    # Verify that the saved order data is correct
+    mock_storage.save_order.assert_called_once_with(
+        "ORD001",
+        {
+            "order_id": "ORD001",
+            "item_name": "Laptop",
+            "quantity": 1,
+            "customer_id": "CUST001",
+            "status": "processing",  # Status set upon creation
+        },
+    )
+
 
 def test_add_order_raises_error_if_exists(order_tracker, mock_storage):
     """Tests that adding an order with a duplicate ID raises a ValueError."""
@@ -180,8 +214,10 @@ def test_list_all_orders(order_tracker, mock_storage):
     # Verify the correct number of orders is returned
     assert len(orders) == 2
     # Spot-check that order data is correctly passed through
-    assert orders["ORD001"]["item_name"] == "Laptop"
-    assert orders["ORD002"]["item_name"] == "Phone"
+    assert orders[0]["order_id"] == "ORD001"
+    assert orders[0]["item_name"] == "Laptop"
+    assert orders[1]["order_id"] == "ORD002"
+    assert orders[1]["item_name"] == "Phone"
     # Confirm storage method was called
     mock_storage.get_all_orders.assert_called_once()
 

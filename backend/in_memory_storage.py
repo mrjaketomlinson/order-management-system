@@ -1,11 +1,13 @@
 # This file provides a simple in-memory storage implementation for orders.
 # Data stored here will be lost when the application restarts.
 
+
 class InMemoryStorage:
     """
     A simple in-memory implementation of the storage interface.
     Stores orders in a Python dictionary.
     """
+
     def __init__(self):
         self._orders = {}
 
@@ -13,11 +15,15 @@ class InMemoryStorage:
         self._orders[order_id] = order_data.copy()
 
     def get_order(self, order_id: str):
-        return self._orders.get(order_id, {}).copy() if self._orders.get(order_id) else None
+        return (
+            self._orders.get(order_id, {}).copy()
+            if self._orders.get(order_id)
+            else None
+        )
 
     def get_all_orders(self):
         return {k: v.copy() for k, v in self._orders.items()}
-    
+
     def delete_order(self, order_id: str):
         if order_id in self._orders:
             del self._orders[order_id]

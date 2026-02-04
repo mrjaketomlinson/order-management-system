@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory
+from werkzeug.exceptions import BadRequest, NotFound, Conflict
 from backend.order_tracker import OrderTracker
 from backend.in_memory_storage import InMemoryStorage
 from backend.decorators import json_required
@@ -6,6 +7,24 @@ from backend.decorators import json_required
 app = Flask(__name__, static_folder="../frontend")
 in_memory_storage = InMemoryStorage()
 order_tracker = OrderTracker(in_memory_storage)
+
+
+@app.errorhandler(BadRequest)
+def handle_bad_request(e):
+    """Convert BadRequest exceptions to JSON responses."""
+    return jsonify({"error": e.description}), 400
+
+
+@app.errorhandler(NotFound)
+def handle_not_found(e):
+    """Convert NotFound exceptions to JSON responses."""
+    return jsonify({"error": e.description}), 404
+
+
+@app.errorhandler(Conflict)
+def handle_conflict(e):
+    """Convert Conflict exceptions to JSON responses."""
+    return jsonify({"error": e.description}), 409
 
 
 @app.route("/")
@@ -49,17 +68,10 @@ def add_order_api():
     """
     order_json = request.get_json()
     required_fields = ["order_id", "item_name", "quantity", "customer_id"]
-    missing_fields = []
-    for field in required_fields:
-        if field not in order_json:
-            missing_fields.append(field)
+    missing_fields = [field for field in required_fields if field not in order_json]
     if missing_fields:
-        return (
-            jsonify(
-                {"error": f"Missing required field(s): {', '.join(missing_fields)}"}
-            ),
-            400,
-        )
+        raise BadRequest(f"Missing required fields: {', '.join(missing_fields)}")
+
     try:
         order_tracker.add_order(
             order_id=order_json["order_id"],
@@ -69,7 +81,9 @@ def add_order_api():
             status=order_json.get("status", "pending"),
         )
     except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        # Order already exists - this is a conflict (409)
+        raise Conflict(str(e))
+
     return jsonify(order_tracker.get_order_by_id(order_json["order_id"])), 201
 
 
@@ -86,7 +100,8 @@ def get_order_api(order_id):
     """
     order = order_tracker.get_order_by_id(order_id)
     if not order:
-        return jsonify({"error": "Order not found"}), 404
+        raise NotFound(f"Order with ID '{order_id}' not found.")
+
     return jsonify(order), 200
 
 
@@ -107,12 +122,19 @@ def update_order_status_api(order_id):
         JSON: Error message with status 404 if order doesn't exist or status is invalid.
     """
     order_json = request.get_json()
+
     if "new_status" not in order_json:
-        return jsonify({"error": "Missing required field: new_status"}), 400
+        raise BadRequest("Missing required field: new_status")
+
     try:
         order_tracker.update_order_status(order_id, order_json["new_status"])
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        error_msg = str(e)
+        if "does not exist" in error_msg:
+            raise NotFound(error_msg)
+        else:
+            raise BadRequest(str(e))
+
     updated_order = order_tracker.get_order_by_id(order_id)
     return jsonify(updated_order), 200
 
@@ -138,7 +160,7 @@ def list_orders_api():
         return jsonify(orders), 200
     else:
         orders = order_tracker.list_all_orders()
-        return jsonify(list(orders.values())), 200
+        return jsonify(orders), 200
 
 
 @app.route("/api/orders/<string:order_id>", methods=["DELETE"])
@@ -146,7 +168,8 @@ def delete_order_api(order_id):
     try:
         order_tracker.delete_order(order_id)
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        raise NotFound(str(e))
+
     return "", 204
 
 
